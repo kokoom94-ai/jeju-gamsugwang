@@ -1,5 +1,23 @@
 // CCTV 통합: ① 제주 교통정보센터(서울 리전에서 직접 호출) ② 국가 ITS
 // 환경변수: JEJU_ITS_CODE, ITS_API_KEY(선택)
+import dns from "node:dns";
+try { dns.setDefaultResultOrder("ipv4first"); } catch (e) {}
+
+// 타임아웃 + 1회 재시도 fetch
+async function fetchRetry(url, ms = 8000, tries = 2) {
+  let last;
+  for (let i = 0; i < tries; i++) {
+    try {
+      const ctrl = new AbortController();
+      const to = setTimeout(() => ctrl.abort(), ms);
+      const r = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(to);
+      return r;
+    } catch (e) { last = e; }
+  }
+  throw last;
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -15,7 +33,7 @@ export default async function handler(req, res) {
   if (req.query.debug === "its" && itsKey) {
     try {
       const url = `https://openapi.its.go.kr:9443/cctvInfo?apiKey=${itsKey}&type=its&cctvType=1&minX=126.05&maxX=127.10&minY=33.05&maxY=33.65&getType=json`;
-      const r = await fetch(url);
+      const r = await fetchRetry(url);
       const t = await r.text();
       res.setHeader("Cache-Control", "no-store");
       return res.status(200).json({ debug: "its", status: r.status, sample: t.slice(0, 2000) });
@@ -55,7 +73,7 @@ export default async function handler(req, res) {
   if (itsKey) {
     try {
       const url = `https://openapi.its.go.kr:9443/cctvInfo?apiKey=${itsKey}&type=its&cctvType=1&minX=126.05&maxX=127.10&minY=33.05&maxY=33.65&getType=json`;
-      const r = await fetch(url);
+      const r = await fetchRetry(url);
       const j = await r.json();
       const rows = ((j.response && j.response.data) || []).map(c => ({
         name: c.cctvname, lat: num(c.coordy), lng: num(c.coordx),
