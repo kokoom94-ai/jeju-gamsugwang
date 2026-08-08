@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   }
   const num = v => { const n = parseFloat(v); return isFinite(n) ? n : 0; };
   const inJeju = c => c.lat > 33.0 && c.lat < 33.7 && c.lng > 126.0 && c.lng < 127.2;
- 
+
   if (req.query.debug === "its" && itsKey) {
     try {
       const url = `https://openapi.its.go.kr:9443/cctvInfo?apiKey=${itsKey}&type=its&cctvType=1&minX=126.05&maxX=127.10&minY=33.05&maxY=33.65&getType=json`;
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ debug: true, error: String(e), cause: e && e.cause ? (e.cause.code || String(e.cause)) : "" });
     }
   }
- 
+
   const results = { jeju: 0, its: 0 };
   let list = [];
   if (jejuCode) {
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
     if (seen.has(k)) return false;
     seen.add(k); return true;
   }).slice(0, 600);
- 
+
   if (!list.length) {
     res.setHeader("Cache-Control", "no-store");
     return res.status(502).json({ error: "CCTV 데이터 없음 — 키 상태를 확인하세요", counts: results });
