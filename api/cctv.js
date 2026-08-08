@@ -11,7 +11,19 @@ export default async function handler(req, res) {
   }
   const num = v => { const n = parseFloat(v); return isFinite(n) ? n : 0; };
   const inJeju = c => c.lat > 33.0 && c.lat < 33.7 && c.lng > 126.0 && c.lng < 127.2;
-
+ 
+  if (req.query.debug === "its" && itsKey) {
+    try {
+      const url = `https://openapi.its.go.kr:9443/cctvInfo?apiKey=${itsKey}&type=its&cctvType=1&minX=126.05&maxX=127.10&minY=33.05&maxY=33.65&getType=json`;
+      const r = await fetch(url);
+      const t = await r.text();
+      res.setHeader("Cache-Control", "no-store");
+      return res.status(200).json({ debug: "its", status: r.status, sample: t.slice(0, 2000) });
+    } catch (e) {
+      res.setHeader("Cache-Control", "no-store");
+      return res.status(200).json({ debug: "its", error: String(e), cause: e && e.cause ? (e.cause.code || String(e.cause)) : "" });
+    }
+  }
   if (req.query.debug && jejuCode) {
     try {
       const r = await fetch(`http://api.jejuits.go.kr/api/getFacilityInfo?code=${jejuCode}&fcltType=FTY02`);
@@ -23,7 +35,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ debug: true, error: String(e), cause: e && e.cause ? (e.cause.code || String(e.cause)) : "" });
     }
   }
-
+ 
   const results = { jeju: 0, its: 0 };
   let list = [];
   if (jejuCode) {
@@ -50,7 +62,7 @@ export default async function handler(req, res) {
         url: String(c.cctvurl || "").replace(/^http:/, "https:"), src: "its"
       })).filter(c => c.lat && c.lng && c.url);
       list = list.concat(rows); results.its = rows.length;
-    } catch (e) {}
+    } catch (e) { results.itsError = String(e).slice(0, 200); }
   }
   const seen = new Set();
   list = list.filter(c => {
@@ -58,7 +70,7 @@ export default async function handler(req, res) {
     if (seen.has(k)) return false;
     seen.add(k); return true;
   }).slice(0, 600);
-
+ 
   if (!list.length) {
     res.setHeader("Cache-Control", "no-store");
     return res.status(502).json({ error: "CCTV 데이터 없음 — 키 상태를 확인하세요", counts: results });
