@@ -324,16 +324,31 @@ aside{width:412px;min-width:412px;background:var(--paper);border-right:1px solid
 .final-day .fd-route{font-size:12.5px;line-height:1.5}
 .final-day .fd-meta{font-size:11px;color:var(--basalt-soft);font-variant-numeric:tabular-nums}
 
+.hero{background:linear-gradient(145deg,#0E6B74 0%,#0A4F56 70%,#0B3E44 100%);
+  border-radius:16px;padding:22px 20px 20px;color:#fff;box-shadow:0 6px 18px rgba(14,107,116,.25)}
+.hero-badge{font-size:11px;font-weight:800;letter-spacing:.12em;color:#FFB25E;margin-bottom:9px}
+.hero-title{font-size:20px;line-height:1.42;font-weight:800;margin:0 0 7px}
+.hero-title em{font-style:normal;color:#FFD9B0;border-bottom:3px solid rgba(228,118,43,.55)}
+.hero-sub{font-size:12.5px;color:#BFD9D6;margin:0 0 15px;line-height:1.5}
+.hero-cta{display:flex;gap:8px}
+.hero-btn{flex:1;border-radius:11px;padding:12px 6px;font-size:13.5px;font-weight:800;border:0;font-family:inherit}
+.hero-btn.primary{background:var(--gamgyul);color:#fff;box-shadow:0 4px 12px rgba(228,118,43,.4)}
+.hero-btn.primary:active{transform:scale(.98)}
+.hero-btn.ghost{background:rgba(255,255,255,.1);color:#DFF0EE;border:1.5px solid rgba(255,255,255,.35)}
+.hero.done{display:none}
 .tab-intro{padding:11px 14px;border-radius:11px;background:#EAF3F2;border:1px solid #CCE0DE;
   font-size:13px;color:var(--sea-deep);line-height:1.55;font-weight:600}
 @media (max-width:860px){
-  .app{flex-direction:column-reverse;height:auto}
+  .app{flex-direction:column;height:auto}
   aside{width:100%;min-width:0;border-right:0;border-top:1px solid var(--line);padding:14px 14px 30px}
   #map{height:44vh;min-height:300px}
   body{overflow:auto;-webkit-text-size-adjust:100%}
   button,select,input{touch-action:manipulation}
-  .design-tabs{position:sticky;top:0;z-index:900;box-shadow:0 4px 10px rgba(34,38,42,.08)}
-  .design-tabs .dt{padding:10px 2px;font-size:12px}
+  .design-tabs{position:fixed;bottom:0;left:0;right:0;z-index:1200;border-radius:0;
+    padding:7px 10px calc(7px + env(safe-area-inset-bottom));background:var(--paper);
+    box-shadow:0 -4px 16px rgba(34,38,42,.14);border-top:1px solid var(--line)}
+  .design-tabs .dt{padding:12px 2px;font-size:14.5px;font-weight:800}
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
   .node-ctrl{opacity:1}
   .ctrl-btn{width:27px;height:27px;font-size:12.5px}
   .day-move{height:27px;font-size:11px;max-width:60px}
@@ -346,7 +361,7 @@ aside{width:412px;min-width:412px;background:var(--paper);border-right:1px solid
   .chip{padding:6px 12px}
   .fac-cat{padding:6px 11px}
   .day-tab{padding:7px 13px}
-  .go-btn{position:sticky;bottom:10px;z-index:800}
+  .go-btn{position:sticky;bottom:calc(80px + env(safe-area-inset-bottom));z-index:800}
   header{padding:11px 14px}
   header p{display:none}
   .cctv-box{max-width:100%}
@@ -379,7 +394,16 @@ aside{width:412px;min-width:412px;background:var(--paper);border-right:1px solid
     </nav>
 
     <div class="dtab" id="dtab1">
-    <p class="tab-intro">🧭 예약한 숙소를 먼저 입력하고, 모아둔 방문지를 담아보세요. 하단에 일정별 코스가 자동 설계됩니다.</p>
+    <div class="hero" id="hero">
+      <div class="hero-badge">● JEJU TRAVEL PLANNER</div>
+      <h2 class="hero-title">숙소와 가고 싶은 곳만 담으면<br><em>제주 동선이 자동으로</em> 나옵니다</h2>
+      <p class="hero-sub">공항 도착부터 일자별 코스·시간표·예상 비용까지 한 번에</p>
+      <div class="hero-cta">
+        <button class="hero-btn primary" id="sampleBtn">👀 샘플 코스 3초 만에 보기</button>
+        <button class="hero-btn ghost" id="startBtn">직접 만들기 ↓</button>
+      </div>
+    </div>
+    <p class="tab-intro" id="introHint" hidden>🧭 예약한 숙소를 먼저 입력하고, 모아둔 방문지를 담아보세요. 하단에 일정별 코스가 자동 설계됩니다.</p>
 
     <!-- STEP 1 : 숙소 -->
     <section class="step" id="step1">
@@ -1214,7 +1238,7 @@ function computeDay(i){
 /* ══════════ 결과 렌더 ══════════ */
 document.getElementById("goBtn").onclick=()=>{
   state.plan=buildPlan();state.activeDay=0;state.busOpen=null;renderResult();
-  enableDesignTabs();
+  enableDesignTabs();mobScrollMap();
 };
 document.getElementById("rebuildBtn").onclick=()=>{
   const all=state.plan.flatMap(d=>d.stops);
@@ -1236,6 +1260,7 @@ function renderResult(flash){
   }).join("");
   tabs.querySelectorAll(".day-tab").forEach(b=>b.onclick=()=>{state.activeDay=+b.dataset.d;state.busOpen=null;renderResult()});
   renderDayPanel(flash);drawRoutes();saveState();
+  const he=document.getElementById("hero");if(he)he.classList.add("done");
 }
 function legRow(l,day,k,fromPt,toPt){
   const walk=l.walk!=null?`🚶 ${l.walk}분`:`🚶 —`;
@@ -1449,8 +1474,10 @@ function drawRoutes(){
     const d=computeDay(i),c=DAY_COLORS[i%DAY_COLORS.length];
     const active=state.mapAllDays||i===state.activeDay;
     const pts=d.pts.map(p=>[p.lat,p.lng]);
-    L.polyline(pts,{color:c,weight:active?(state.mapAllDays?3.5:4.5):2.5,
-      opacity:active?.92:.35,dashArray:"7 8"}).addTo(routeLayer);
+    const MOB=matchMedia("(max-width:860px)").matches;
+    L.polyline(pts,{color:c,
+      weight:MOB?(active?3:1.8):(active?(state.mapAllDays?3.5:4.5):2.5),
+      opacity:active?.92:.35,dashArray:MOB?"3 6":"7 8"}).addTo(routeLayer);
     d.nodes.forEach(n=>{
       if(n.kind!=="stop")return;
       L.marker([n.pt.lat,n.pt.lng],{
@@ -1519,6 +1546,10 @@ document.querySelectorAll(".design-tabs .dt").forEach(b=>b.onclick=()=>{
   if(b.disabled){toast("먼저 ① 코스 탭에서 코스를 설계해 주세요");return}
   switchDesignTab(+b.dataset.t);
 });
+function mobScrollMap(){
+  if(!matchMedia("(max-width:860px)").matches)return;
+  setTimeout(()=>document.getElementById("map").scrollIntoView({behavior:"smooth",block:"start"}),200);
+}
 function enableDesignTabs(){
   document.querySelectorAll(".design-tabs .dt").forEach(b=>b.disabled=false);
 }
@@ -1632,6 +1663,7 @@ async function loadFacilities(){
       });
     }catch(e){}
   }
+  if(cnt)mobScrollMap();
   st.textContent=cnt
     ?`✔ 코스 주변 ${cnt}곳 표시 중 — 📷 지도에서 클릭해 📌 담거나 ➕ 코스에 넣어보세요`
     :"⚠ 시설을 찾지 못했어요. 반경을 5km로 늘리거나 시설 종류를 바꿔보세요.";
@@ -1834,7 +1866,7 @@ function renderFinal(){
 }
 window.focusDay=i=>{
   state.activeDay=i;state.busOpen=null;
-  drawRoutes();
+  drawRoutes();mobScrollMap();
   const d=computeDay(i);
   map.fitBounds(d.pts.map(p=>[p.lat,p.lng]),{padding:[46,46]});
   renderFinal();
@@ -2068,6 +2100,38 @@ document.getElementById("planSaveBtn").onclick=()=>{
   a.download="어디레감수광_"+(state.lodging?state.lodging.name.replace(/\s+/g,""):"계획")+"_"+state.plan.length+"일.json";
   a.click();URL.revokeObjectURL(a.href);
   toast("💾 계획 파일을 저장했어요 — 파일을 열면 그대로 복원돼요");
+};
+
+/* ══════════ 샘플 코스 (첫 3초 데모) ══════════ */
+const SAMPLE_HOTEL="메종글래드 제주";
+const SAMPLE_SPOTS=["성산일출봉","섭지코지","함덕해수욕장","동문시장","협재해수욕장","오설록 티뮤지엄","새별오름","천지연폭포"];
+function loadSample(){
+  const h=HOTELS.find(x=>x.name===SAMPLE_HOTEL)||HOTELS[0];
+  setLodging({...h});
+  state.basket=[];
+  SAMPLE_SPOTS.forEach(nm=>{
+    const p=PLACES.find(q=>q.name===nm);
+    if(p)state.basket.push({...p});
+  });
+  state.days=3;
+  document.querySelectorAll(".dur-btn").forEach(b=>b.classList.toggle("on",+b.dataset.days===3));
+  const ds=document.getElementById("durSel");
+  if(ds){ds.value="";ds.classList.remove("on");}
+  renderBasket();renderChips();refreshGo();
+  state.plan=buildPlan();state.activeDay=0;state.busOpen=null;
+  renderResult();enableDesignTabs();
+  if(matchMedia("(max-width:860px)").matches)mobScrollMap();
+  else{const r=document.getElementById("result");
+    if(r)setTimeout(()=>r.scrollIntoView({behavior:"smooth",block:"start"}),150);}
+  toast("👀 샘플 2박3일 코스예요 — 장소·순서·시간을 자유롭게 바꿔보세요");
+  saveState();
+}
+document.getElementById("sampleBtn").onclick=loadSample;
+document.getElementById("startBtn").onclick=()=>{
+  document.getElementById("introHint").hidden=false;
+  const s1=document.getElementById("step1");
+  s1.scrollIntoView({behavior:"smooth",block:"start"});
+  setTimeout(()=>{const inp=document.getElementById("lodgingInput");if(inp)inp.focus({preventScroll:true})},450);
 };
 
 /* 초기 렌더 */
