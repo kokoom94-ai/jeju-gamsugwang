@@ -123,6 +123,7 @@ aside{width:412px;min-width:412px;background:var(--paper);border-right:1px solid
 .basket-count b{color:var(--sea)}
 
 /* 일정 + 시간 */
+.dur-note{padding:10px 13px;border-radius:10px;background:#F4F8F7;border:1px solid var(--line);font-size:13px}
 .dur-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .dur-sel{border:1.5px solid var(--line);background:var(--paper);border-radius:10px;padding:9px 4px;font-size:12px;font-family:inherit;color:var(--basalt-soft)}
 .dur-sel.on{border-color:var(--sea);background:#EAF3F2;color:var(--sea-deep);font-weight:700}
@@ -153,6 +154,12 @@ aside{width:412px;min-width:412px;background:var(--paper);border-right:1px solid
 .go-btn:hover{transform:translateY(-1px)}
 .go-btn:disabled{background:#C9CFCD;box-shadow:none;transform:none;cursor:not-allowed}
 .plan-io{display:flex;gap:8px;margin-top:-6px}
+.import-big{display:block;text-align:center;border:2px dashed var(--sea);background:#EAF3F2;
+  color:var(--sea-deep);border-radius:13px;padding:13px 10px;font-weight:800;font-size:14.5px;
+  cursor:pointer;line-height:1.4}
+.import-big span{display:block;font-size:11.5px;font-weight:500;color:#4A7B78;margin-top:3px}
+.import-big:hover{background:#DFEEEC}
+.reset-row{margin-top:10px}
 .io-btn{flex:1;text-align:center;padding:8px;border:1.5px dashed var(--line);border-radius:10px;
   background:none;font-size:12px;color:var(--basalt-soft);cursor:pointer;font-family:inherit}
 .io-btn:hover{border-color:var(--sea);color:var(--sea)}
@@ -216,7 +223,7 @@ aside{width:412px;min-width:412px;background:var(--paper);border-right:1px solid
 .act-btn{flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--line);
   background:var(--paper);font-size:13px;font-weight:600;color:var(--basalt)}
 .act-btn:hover{border-color:var(--sea);color:var(--sea)}
-.foot-note{font-size:11px;color:var(--basalt-soft);line-height:1.6}
+.foot-note{font-size:12.5px;color:var(--basalt-soft);line-height:1.7}
 
 .pin{width:28px;height:28px;border-radius:50% 50% 48% 52%/52% 48% 52% 48%;
   display:flex;align-items:center;justify-content:center;color:#fff;
@@ -285,8 +292,8 @@ aside{width:412px;min-width:412px;background:var(--paper);border-right:1px solid
 .fac-popup{font-size:13px;line-height:1.5}
 .fac-popup button{margin-top:6px;border:1px solid var(--sea);background:#EAF3F2;color:var(--sea-deep);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer}
 .cost-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.cost-grid label{font-size:12px;color:var(--basalt-soft);display:flex;flex-direction:column;gap:4px;font-weight:600}
-.cost-grid input,.cost-grid select{padding:8px 10px;border:1.5px solid var(--line);border-radius:9px;font-size:13.5px;background:#FBFCFC}
+.cost-grid label{font-size:11.5px;color:var(--basalt-soft);display:flex;flex-direction:column;gap:4px;font-weight:600;min-width:0}
+.cost-grid input,.cost-grid select{width:100%;min-width:0;box-sizing:border-box;padding:7px 8px;border:1.5px solid var(--line);border-radius:9px;font-size:13px;background:#FBFCFC}
 .cost-sub{font-size:13.5px;margin:16px 0 8px;font-weight:700}
 .cost-sub span{display:block;font-size:11px;color:var(--basalt-soft);font-weight:400;margin-top:2px}
 .cost-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #EEF2F1;font-size:13px}
@@ -406,63 +413,13 @@ aside{width:412px;min-width:412px;background:var(--paper);border-right:1px solid
     <p class="tab-intro" id="introHint" hidden>🧭 예약한 숙소를 먼저 입력하고, 모아둔 방문지를 담아보세요. 하단에 일정별 코스가 자동 설계됩니다.</p>
 
     <!-- STEP 1 : 숙소 -->
-    <section class="step" id="step1">
-      <div class="step-head"><span class="step-no">1</span><h2>숙소 정하기</h2><small>동선의 거점</small></div>
-      <div class="search-wrap">
-        <input class="search-input" id="lodgingInput" type="text" placeholder="숙소 이름·상호 검색 (네이버 플레이스 기반)" autocomplete="off" aria-label="숙소 검색">
-        <div class="search-drop" id="lodgingDrop" role="listbox"></div>
-      </div>
-      <button class="map-pick-btn" id="lodgingMapBtn">📍 지도를 클릭해서 숙소 위치 직접 지정</button>
-      <div class="lodging-set" id="lodgingSet">🏠 <b id="lodgingName"></b><button class="mini-btn" id="lodgingClear">변경</button></div>
-      <div id="lodging2Wrap">
-        <button class="io-btn" id="lodging2Add" style="width:100%;margin-top:8px">🏨 여행 중 숙소가 바뀌어요 (선택)</button>
-        <div id="lodging2Form" hidden style="margin-top:8px">
-          <div style="display:flex;gap:7px;align-items:center;margin-bottom:6px">
-            <select id="lodging2From" style="padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;font-size:12.5px"></select>
-            <span style="font-size:12px;color:var(--basalt-soft)">부터 묵을 숙소를 아래에서 검색해 선택 (최대 5회 변경)</span>
-          </div>
-          <div class="search-wrap">
-            <input class="search-input" id="lodging2Input" type="text" placeholder="변경할 숙소 검색" autocomplete="off">
-            <div class="search-drop" id="lodging2Drop" role="listbox"></div>
-          </div>
-          <div id="lodging2List"></div>
-          <p class="hint" style="margin-top:5px">각 일차부터는 해당 숙소 기준으로 동선이 설계돼요. 숙소 이동일 아침은 이전 숙소 체크아웃 시간에 출발합니다. 변경 후 <b>코스 설계하기</b>를 다시 눌러주세요.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- STEP 2 : 장소 담기 -->
-    <section class="step" id="step2">
-      <div class="step-head"><span class="step-no">2</span><h2>가고 싶은 곳 담기</h2><small id="basketCountTop"></small></div>
-      <div class="search-wrap">
-        <input class="search-input" id="placeInput" type="text" placeholder="식당·카페·명소 무엇이든 검색" autocomplete="off" aria-label="여행지 검색">
-        <div class="search-drop" id="placeDrop" role="listbox"></div>
-      </div>
-      <div class="cat-tabs" id="catTabs"></div>
-      <div class="chip-pool" id="chipPool"></div>
-      <button class="map-pick-btn" id="customMapBtn">📍 지도를 클릭해서 나만의 장소 추가</button>
-      <div class="basket" id="basket"></div>
-      <p class="hint">💡 하루 4~5곳이 여유로운 기준이에요. <b style="color:#03C75A">N</b>을 누르면 네이버 플레이스에서 확인할 수 있어요.</p>
-    </section>
-
-    <!-- STEP 3 : 일정 · 시간 -->
     <section class="step" id="step3">
-      <div class="step-head"><span class="step-no">3</span><h2>일정과 시간</h2></div>
-      <div class="dur-grid" id="durGrid">
-        <button class="dur-btn" data-days="1">당일<small>1일</small></button>
-        <button class="dur-btn" data-days="2">1박 2일<small>2일</small></button>
-        <button class="dur-btn on" data-days="3">2박 3일<small>3일</small></button>
-        <button class="dur-btn" data-days="4">3박 4일<small>4일</small></button>
-        <button class="dur-btn" data-days="5">4박 5일<small>5일</small></button>
-        <select class="dur-sel" id="durSel">
-          <option value="">더 길게 ▾</option>
-          <option value="6">5박 6일</option><option value="7">6박 7일</option>
-          <option value="8">7박 8일</option><option value="9">8박 9일</option>
-          <option value="10">9박 10일</option><option value="11">10박 11일</option>
-          <option value="12">11박 12일</option><option value="13">12박 13일</option>
-          <option value="14">13박 14일</option>
-        </select>
+      <div class="step-head"><span class="step-no">1</span><h2>일정과 시간</h2><small>여행 날짜·항공 시간</small></div>
+      <div class="time-grid" style="margin-bottom:6px">
+        <div class="time-cell"><label for="dStart">제주 가는 날</label><input type="date" id="dStart"></div>
+        <div class="time-cell"><label for="dEnd">돌아오는 날</label><input type="date" id="dEnd"></div>
       </div>
+      <p class="reco" id="dateSummary" style="margin-bottom:14px"></p>
       <p class="reco" id="reco"></p>
       <div class="sched-toggle">
         <label class="switch"><input type="checkbox" id="schedOn" checked><span class="slider"></span></label>
@@ -492,17 +449,60 @@ aside{width:412px;min-width:412px;background:var(--paper);border-right:1px solid
       <p class="hint">첫날은 공항에서 출발해 들를 곳을 거쳐 숙소로, 마지막 날은 체크아웃 후 공항까지의 시간에 맞춰 코스를 배분해요.</p>
     </section>
 
+    <section class="step" id="step1">
+      <div class="step-head"><span class="step-no">2</span><h2>예약 숙소 입력하기</h2><small>동선의 거점</small></div>
+      <div class="search-wrap">
+        <input class="search-input" id="lodgingInput" type="text" placeholder="숙소 이름·상호 검색 (네이버 플레이스 기반)" autocomplete="off" aria-label="숙소 검색">
+        <div class="search-drop" id="lodgingDrop" role="listbox"></div>
+      </div>
+      <button class="map-pick-btn" id="lodgingMapBtn">📍 지도를 클릭해서 숙소 위치 직접 지정</button>
+      <div class="lodging-set" id="lodgingSet">🏠 <b id="lodgingName"></b><button class="mini-btn" id="lodgingClear">변경</button></div>
+      <div id="lodging2Wrap">
+        <button class="io-btn" id="lodging2Add" style="width:100%;margin-top:8px">🏨 여행 중 숙소가 바뀌어요 (선택)</button>
+        <div id="lodging2Form" hidden style="margin-top:8px">
+          <div style="display:flex;gap:7px;align-items:center;margin-bottom:6px">
+            <select id="lodging2From" style="padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;font-size:12.5px"></select>
+            <span style="font-size:12px;color:var(--basalt-soft)">부터 묵을 숙소를 아래에서 검색해 선택 (최대 5회 변경)</span>
+          </div>
+          <div class="search-wrap">
+            <input class="search-input" id="lodging2Input" type="text" placeholder="변경할 숙소 검색" autocomplete="off">
+            <div class="search-drop" id="lodging2Drop" role="listbox"></div>
+          </div>
+          <div id="lodging2List"></div>
+          <p class="hint" style="margin-top:5px">각 일차부터는 해당 숙소 기준으로 동선이 설계돼요. 숙소 이동일 아침은 이전 숙소 체크아웃 시간에 출발합니다. 변경 후 <b>코스 설계하기</b>를 다시 눌러주세요.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3 : 일정 · 시간 -->
+
+    <!-- STEP 2 : 장소 담기 -->
+    <section class="step" id="step2">
+      <div class="step-head"><span class="step-no">3</span><h2>방문 예정지 입력하기</h2><small id="basketCountTop"></small></div>
+      <div class="search-wrap">
+        <input class="search-input" id="placeInput" type="text" placeholder="식당·카페·명소 무엇이든 검색" autocomplete="off" aria-label="여행지 검색">
+        <div class="search-drop" id="placeDrop" role="listbox"></div>
+      </div>
+      <div class="cat-tabs" id="catTabs"></div>
+      <div class="chip-pool" id="chipPool"></div>
+      <button class="map-pick-btn" id="customMapBtn">📍 지도를 클릭해서 나만의 장소 추가</button>
+      <div class="basket" id="basket"></div>
+      <p class="hint">💡 하루 4~5곳이 여유로운 기준이에요. <b style="color:#03C75A">N</b>을 누르면 네이버 플레이스에서 확인할 수 있어요.</p>
+    </section>
+
+
+    <label class="import-big" for="planFile">📂 계획 파일 불러오기 (.xlsx / .csv / .json)
+      <span>장소 목록을 올리면 자동 매칭 후 코스까지 설계돼요<br>없으면 바로 아래 <b>코스 설계하기</b>를 클릭해주세요</span>
+      <input type="file" id="planFile" accept=".json,.csv,.xlsx,.xls" hidden>
+    </label>
     <button class="go-btn" id="goBtn" disabled>코스 설계하기</button>
-    <div class="plan-io">
-      <label class="io-btn" for="planFile">📂 계획 파일 불러오기<input type="file" id="planFile" accept=".json" hidden></label>
-      <button class="io-btn" id="resetBtn">⟲ 처음부터 새로 시작</button>
-    </div>
 
     <!-- 결과 -->
     <section id="result" aria-live="polite">
       <div class="result-head"><h2>나의 제주 코스</h2><span class="total-line" id="totalLine"></span></div>
       <div class="day-tabs" id="dayTabs"></div>
       <div id="dayPanel"></div>
+      <div class="reset-row"><button class="io-btn" id="resetBtn" style="width:100%">⟲ 처음부터 새로 시작</button></div>
       <div class="result-actions">
         <button class="act-btn" id="copyBtn">📋 일정 복사</button>
         <button class="act-btn" onclick="window.print()">🖨 인쇄 / PDF</button>
@@ -551,7 +551,7 @@ aside{width:412px;min-width:412px;background:var(--paper);border-right:1px solid
           </select></label>
           <label id="cEffLabel">연비 (km/L)<input type="number" id="cEff" step="0.5" value="12"></label>
           <label id="cPriceLabel">연료 단가 (원/L)<input type="number" id="cPrice" step="10" value="1720"></label>
-          <label style="grid-column:1/-1">렌터카·숙박 등 고정비 (선택, 원)<input type="number" id="cFixed" step="10000" value="0"></label>
+          <label style="grid-column:1/-1">렌터카·숙박·항공비 등 고정비 (선택, 원)<input type="number" id="cFixed" step="10000" value="0"></label>
         </div>
         <h3 class="cost-sub">장소별 1인 예상 비용 <span>입장료·이용료·음료 등 — 직접 수정 가능</span></h3>
         <div id="costList"></div>
@@ -730,7 +730,7 @@ searchPlaces("제주공항").then(()=>setSearchStatus());
 
 /* ══════════ 상태 ══════════ */
 const state={
-  lodging:null,basket:[],days:3,mode:null,
+  lodging:null,basket:[],days:3,dates:{start:"",end:""},mode:null,
   sched:{on:true,arr:"11:00",dep:"18:00",cin:"15:00",cout:"11:00",buf:60,dbuf:90},
   plan:null,activeDay:0,removedPool:[],busOpen:null,mapAllDays:false
 };
@@ -981,21 +981,34 @@ function drawPool(){
 }
 
 /* ══════════ STEP 3 일정·시간 ══════════ */
-document.querySelectorAll(".dur-btn").forEach(b=>b.onclick=()=>{
-  state.days=+b.dataset.days;
-  document.querySelectorAll(".dur-btn").forEach(x=>x.classList.toggle("on",x===b));
-  const ds=document.getElementById("durSel");ds.value="";ds.classList.remove("on");
-  refreshLodging2From();
-  updateReco();saveState();
+function nightsText(n){return n<=1?"당일치기":`${n-1}박 ${n}일`}
+function setTripDates(s,e,silent){
+  state.dates.start=s;state.dates.end=e;
+  document.getElementById("dStart").value=s;
+  document.getElementById("dEnd").value=e;
+  const d1=parseD(s),d2=parseD(e);
+  let days=Math.round((d2-d1)/86400000)+1;
+  if(days<1){days=1;state.dates.end=s;document.getElementById("dEnd").value=s;}
+  if(days>14){days=14;const ne=new Date(d1);ne.setDate(ne.getDate()+13);
+    state.dates.end=dateISO(ne);
+    document.getElementById("dEnd").value=state.dates.end;
+    if(!silent)toast("최대 13박 14일까지 지원해요 — 날짜를 조정했어요");}
+  state.days=days;
+  document.getElementById("dateSummary").innerHTML=
+    `🍊 <b style="font-size:15.5px;color:var(--sea-deep)">${nightsText(days)} 제주여행</b> <span style="color:var(--basalt-soft)">· ${fmtMD(parseD(state.dates.start))} ~ ${fmtMD(parseD(state.dates.end))}</span>`;
+  refreshLodging2From();updateReco();saveState();
+}
+["dStart","dEnd"].forEach(id=>{
+  document.getElementById(id).addEventListener("change",()=>{
+    const s=document.getElementById("dStart").value,e=document.getElementById("dEnd").value;
+    if(s&&e)setTripDates(s,e);
+    else if(s&&!e){const d=parseD(s);d.setDate(d.getDate()+2);setTripDates(s,dateISO(d));}
+  });
 });
-document.getElementById("durSel").addEventListener("change",e=>{
-  if(!e.target.value)return;
-  state.days=+e.target.value;
-  document.querySelectorAll(".dur-btn").forEach(x=>x.classList.remove("on"));
-  e.target.classList.add("on");
-  refreshLodging2From();
-  updateReco();saveState();
-});
+function initDates(){
+  const t=new Date(),e=new Date();e.setDate(e.getDate()+2);
+  setTripDates(dateISO(t),dateISO(e),true);
+}
 document.getElementById("schedOn").addEventListener("change",e=>{
   state.sched.on=e.target.checked;
   document.getElementById("timeGrid").classList.toggle("off",!e.target.checked);
@@ -1039,6 +1052,16 @@ function legInfo(a,b){
     bus:Math.max(8,Math.round(rk/22*60)+12)};
 }
 const toMin=t=>{const[h,m]=t.split(":").map(Number);return h*60+m};
+const WD_KO=["일","월","화","수","목","금","토"];
+const parseD=v=>v?new Date(v+"T00:00:00"):null;
+function tripDayDate(i){
+  const d=parseD(state.dates&&state.dates.start);
+  if(!d)return null;
+  const r=new Date(d);r.setDate(r.getDate()+i);return r;
+}
+const fmtMD=d=>d?`${d.getMonth()+1}/${d.getDate()}(${WD_KO[d.getDay()]})`:"";
+const dayLabel=i=>{const d=tripDayDate(i);return d?fmtMD(d):""};
+const dateISO=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 const fmtClock=m=>{m=Math.round(m);const h=Math.floor(m/60)%24,mm=m%60;
   return String(h).padStart(2,"0")+":"+String(mm).padStart(2,"0")};
 const fmtMin=m=>{const h=Math.floor(m/60),mm=Math.round(m%60);return h?`${h}시간 ${mm}분`:`${mm}분`};
@@ -1177,6 +1200,21 @@ function splitByCapacity(arr,D){
   sizes.forEach(sz=>{out.push(arr.slice(idx,idx+sz));idx+=sz});
   return out;
 }
+/* 공지된 휴무 규칙 (확실한 시설만 — 추가는 이 표에) */
+const CLOSED_RULES={
+  "만장굴":{nth:[1,3],label:"매월 첫째 수요일 휴관"},
+  "넥슨컴퓨터박물관":{dow:[1],label:"월요일 휴관"},
+  "해녀박물관":{dow:[1],label:"월요일 휴관"}
+};
+function closedInfo(name,date){
+  const r=CLOSED_RULES[name];
+  if(!r||!date)return null;
+  const wd=date.getDay();
+  if(r.dow&&r.dow.includes(wd))return r.label;
+  if(r.nth){const[n,dw]=r.nth;
+    if(wd===dw&&Math.ceil(date.getDate()/7)===n)return r.label;}
+  return null;
+}
 function buildPlan(fromStops){
   const src=fromStops||state.basket;
   const D=Math.max(1,Math.min(state.days,src.length));
@@ -1189,6 +1227,22 @@ function buildPlan(fromStops){
   let bestDays=null,bestTotal=Infinity;
   [rotated,rotated.slice().reverse()].forEach(seq=>{
     const chunks=splitByCapacity(seq,D);
+    /* 휴무일 회피: 해당 요일 휴무인 장소는 영업하는 다른 날로 이동 */
+    if(state.dates&&state.dates.start){
+      for(let i=0;i<chunks.length;i++){
+        for(let k=chunks[i].length-1;k>=0;k--){
+          const p=chunks[i][k];
+          if(!closedInfo(p.name,tripDayDate(i)))continue;
+          const order=[];
+          for(let s2=1;s2<D;s2++){if(i+s2<D)order.push(i+s2);if(i-s2>=0)order.push(i-s2);}
+          for(const j of order){
+            if(!closedInfo(p.name,tripDayDate(j))){
+              chunks[j].push(p);chunks[i].splice(k,1);break;
+            }
+          }
+        }
+      }
+    }
     let total=0;
     const days=chunks.map((ch,i)=>{
       const a=anchors(i,D);
@@ -1256,7 +1310,7 @@ function renderResult(flash){
   const tabs=document.getElementById("dayTabs");
   tabs.innerHTML=plan.map((d,i)=>{
     const c=DAY_COLORS[i%DAY_COLORS.length],on=i===state.activeDay;
-    return `<button class="day-tab${on?" on":""}" style="${on?`background:${c}`:""}" data-d="${i}">DAY ${i+1} <span style="opacity:.75;font-weight:400">· ${d.stops.length}곳</span></button>`;
+    return `<button class="day-tab${on?" on":""}" style="${on?`background:${c}`:""}" data-d="${i}">DAY ${i+1} <span style="opacity:.75;font-weight:400">${dayLabel(i)?`· ${dayLabel(i)}`:""} · ${d.stops.length}곳</span></button>`;
   }).join("");
   tabs.querySelectorAll(".day-tab").forEach(b=>b.onclick=()=>{state.activeDay=+b.dataset.d;state.busOpen=null;renderResult()});
   renderDayPanel(flash);drawRoutes();saveState();
@@ -1308,6 +1362,7 @@ function renderDayPanel(flash){
     }
     const p=n.pt,j=n.idx;
     const row=d.sched?d.sched.rows[k]:null;
+    const cw=closedInfo(p.name,tripDayDate(i));
     const stayInp=`<input class="stay-inp" type="number" min="5" max="600" step="5" value="${row?row.stay:stayOf(p)}" data-di="${i}" data-si="${j}" title="머무는 시간(분) 직접 수정">분 머묾`;
     const clock=row?`<span class="clock">${fmtClock(row.arr)}</span> 도착 · ${stayInp} · `:`${stayInp} · `;
     const moveOpts=Array.from({length:D},(_,x)=>x).filter(x=>x!==i)
@@ -1315,7 +1370,7 @@ function renderDayPanel(flash){
     html+=`<div class="tl-node"><span class="stone">${j+1}</span>
       <div class="node-main">
         <div class="place-name">${esc(p.name)}<a class="naver-mini" href="${naverUrl(p.name)}" target="_blank" rel="noopener">N</a></div>
-        <div class="place-sub">${clock}${esc(p.cat)}${p.note?` · ⛴ ${esc(p.note)}`:""}</div>
+        <div class="place-sub">${clock}${cw?`<span style="color:#C0392B;font-weight:800"> ⚠ ${cw}</span> `:""}${esc(p.cat)}${p.note?` · ⛴ ${esc(p.note)}`:""}</div>
       </div>
       <div class="node-ctrl">
         <button class="ctrl-btn" title="위로" onclick="moveStop(${i},${j},-1)">↑</button>
@@ -1337,7 +1392,8 @@ function renderDayPanel(flash){
     <div class="node-main"><div class="place-name">${esc(d.a.eName)}</div>
     <div class="place-sub">${endClock}${esc(endTag)}</div></div>${endCtrl}</div>`;
   html+=`</div>`;
-  if(d.isFirst)html+=`<p class="hint" style="margin-top:6px">🏨 체크인 노드의 ↑↓로 체크인 시점을 코스 안에서 옮길 수 있어요. (짐 먼저 풀고 관광 vs 관광 후 체크인)</p>`;
+  if(d.isFirst)html+=`<p class="hint" style="margin-top:6px">🏨 체크인 노드의 ↑↓로 체크인 시점을 코스 안에서 옮길 수 있어요.<br><span style="opacity:.8">(짐 먼저 풀고 관광 vs 관광 후 체크인)</span></p>`;
+  if(state.dates&&state.dates.start)html+=`<p class="hint" style="margin-top:4px">🗓 각 장소별 공지된 휴무일을 참고하여 일정 배치되었습니다.<br><span style="opacity:.8">공개되지 않은 휴무일이 있을 수 있으니 별도로 확인해주시기 바랍니다.</span></p>`;
   html+=`<div class="day-summary"><span>이동 <b>${Math.round(d.km)}km</b></span><span>자차 <b>${fmtMin(d.carMin)}</b></span><span>방문 <b>${state.plan[i].stops.length}곳</b></span>${d.sched?`<span>마침 <b>${fmtClock(d.sched.end)}</b></span>`:""}</div>`;
 
   if(state.plan[i].stops.length>5)html+=`<div class="warn">⚠ 이 날은 ${state.plan[i].stops.length}곳이라 빠듯할 수 있어요. ✕로 빼면 아래 '빼둔 장소'에 보관돼요.</div>`;
@@ -1502,7 +1558,7 @@ document.getElementById("copyBtn").onclick=async()=>{
   t+=`\n`;
   state.plan.forEach((_,i)=>{
     const d=computeDay(i);
-    t+=`[DAY ${i+1}] 이동 ${Math.round(d.km)}km · 자차 ${fmtMin(d.carMin)}\n`;
+    t+=`[DAY ${i+1}${dayLabel(i)?` ${dayLabel(i)}`:""}] 이동 ${Math.round(d.km)}km · 자차 ${fmtMin(d.carMin)}\n`;
     t+=`  ${d.a.sIcon} ${d.a.sName}${d.sched?` (${fmtClock(d.sched.start)} 출발)`:""}\n`;
     d.nodes.forEach((n,k)=>{
       const l=d.legs[k];
@@ -1782,7 +1838,7 @@ function renderCostSummary(){
     <div class="cs-total"><span>예상 총 비용</span><span>${won(total)}</span></div>
     <div class="cs-per">1인당 약 ${won(total/state.cost.persons)}</div>
   </div>
-  <div class="cost-notice">💡 예상 비용은 유가·요금 변동, 할인, 현장 지출에 따라 오차범위가 있을 수 있으니 여유 있게 준비해 주시기 바랍니다.</div>`;
+  <div class="cost-notice">💡 예상 비용은 연비·유가·요금 변동, 할인, 현장 지출에 따라 오차범위가 있을 수 있으니 여유 있게 준비해 주시기 바랍니다.</div>`;
   saveState();
 }
 
@@ -1793,7 +1849,7 @@ function buildItineraryText(withCost){
   t+=`\n`;
   state.plan.forEach((_,i)=>{
     const d=computeDay(i);
-    t+=`[DAY ${i+1}] 이동 ${Math.round(d.km)}km · 자차 ${fmtMin(d.carMin)}\n`;
+    t+=`[DAY ${i+1}${dayLabel(i)?` ${dayLabel(i)}`:""}] 이동 ${Math.round(d.km)}km · 자차 ${fmtMin(d.carMin)}\n`;
     t+=`  ${d.a.sIcon} ${d.a.sName}${d.sched?` (${fmtClock(d.sched.start)} 출발)`:""}\n`;
     d.nodes.forEach((n,k)=>{
       const l=d.legs[k];
@@ -1817,7 +1873,7 @@ function buildItineraryText(withCost){
     const total=fuelCost+feeSum*state.cost.persons+state.cost.fixed;
     t+=`💰 예상 비용 (${state.cost.persons}명)\n  유류비 ${won(fuelCost)} · 입장/이용료 ${won(feeSum*state.cost.persons)}${state.cost.fixed?` · 고정비 ${won(state.cost.fixed)}`:""}\n  총 ${won(total)} (1인당 약 ${won(total/state.cost.persons)})\n\n`;
   }
-  t+=`※ 이동·체류 시간과 비용은 추정치입니다. 예상 비용은 오차범위가 있을 수 있으니 여유 있게 준비해 주시기 바랍니다.`;
+  t+=`※ 이동·체류 시간과 비용은 추정치입니다. 예상 비용은 연비·유가·요금 변동, 할인, 현장 지출에 따라 오차범위가 있을 수 있으니 여유 있게 준비해 주시기 바랍니다.`;
   return t;
 }
 function buildPrompt(){
@@ -1858,7 +1914,7 @@ function renderFinal(){
     const d=computeDay(i),c=DAY_COLORS[i%DAY_COLORS.length],on=i===state.activeDay;
     const names=day.stops.map(s=>esc(s.name)).join(" → ")||"(장소 없음)";
     return `<button class="final-day${on?" on":""}" style="--fd:${c}" onclick="focusDay(${i})">
-      <span class="fd-badge">DAY ${i+1}</span>
+      <span class="fd-badge">DAY ${i+1}${dayLabel(i)?` · ${dayLabel(i)}`:""}</span>
       <span class="fd-route">${d.a.sIcon} → ${names} → ${d.a.eIcon}</span>
       <span class="fd-meta">${Math.round(d.km)}km · ${fmtMin(d.carMin)}${d.sched?` · ${fmtClock(d.sched.start)}~${fmtClock(d.sched.end)}`:""}</span>
     </button>`;
@@ -2008,7 +2064,7 @@ function saveState(){
     try{
       localStorage.setItem(SAVE_KEY,JSON.stringify({
         v:1,at:Date.now(),
-        lodging:state.lodging,l2:state.l2,basket:state.basket,days:state.days,sched:state.sched,
+        lodging:state.lodging,l2:state.l2,basket:state.basket,days:state.days,dates:state.dates,sched:state.sched,
         plan:state.plan,removedPool:state.removedPool,pinned:state.fac.pinned,
         cost:state.cost,activeDay:state.activeDay
       }));
@@ -2017,7 +2073,7 @@ function saveState(){
 }
 function collectPayload(){
   return {v:1,app:"어디레감수광",at:new Date().toISOString(),
-    lodging:state.lodging,l2:state.l2,basket:state.basket,days:state.days,sched:state.sched,
+    lodging:state.lodging,l2:state.l2,basket:state.basket,days:state.days,dates:state.dates,sched:state.sched,
     plan:state.plan,removedPool:state.removedPool,pinned:state.fac.pinned,cost:state.cost};
 }
 function applyState(s){
@@ -2032,11 +2088,11 @@ function applyState(s){
       if(state.sched.dbuf!=null)document.getElementById("tDbuf").value=String(state.sched.dbuf);
       document.getElementById("timeGrid").classList.toggle("off",!state.sched.on);
     }
-    if(s.days){state.days=s.days;
-      document.querySelectorAll(".dur-btn").forEach(b=>b.classList.toggle("on",+b.dataset.days===s.days));
-      const ds=document.getElementById("durSel");
-      if(s.days>5){ds.value=String(s.days);ds.classList.add("on");}
-      else{ds.value="";ds.classList.remove("on");}
+    if(s.dates&&s.dates.start&&s.dates.end){
+      setTripDates(s.dates.start,s.dates.end,true);
+    }else if(s.days){
+      const t=new Date(),e=new Date();e.setDate(e.getDate()+(s.days-1));
+      setTripDates(dateISO(t),dateISO(e),true);
     }
     if(s.cost){state.cost={...state.cost,...s.cost,over:{...(s.cost.over||{})}};
       document.getElementById("cPersons").value=state.cost.persons;
@@ -2079,19 +2135,73 @@ document.getElementById("resetBtn").onclick=()=>{
   try{localStorage.removeItem(SAVE_KEY)}catch(e){}
   location.reload();
 };
-document.getElementById("planFile").addEventListener("change",e=>{
+/* 장소 목록 일괄 매칭 → 자동 설계 */
+async function importPlaces(rawNames){
+  let names=rawNames.map(s=>String(s??"").trim())
+    .filter(s=>s&&s.length>=2&&s.length<=40&&!/^https?:/i.test(s)&&!/^[\d\s.,-]+$/.test(s));
+  const HK=/^(장소|이름|상호|명칭|여행지|place|name|no\.?|순번|번호|구분)$/i;
+  if(names.length>1&&HK.test(names[0]))names.shift();
+  names=[...new Set(names)].slice(0,40);
+  if(!names.length){alert("파일에서 장소명을 찾지 못했어요. 첫 열에 장소 이름이 오도록 정리해 주세요.");return}
+  toast(`📥 ${names.length}곳 매칭을 시작해요…`);
+  let ok=0;const fail=[];
+  for(let i=0;i<names.length;i++){
+    const nm=names[i];
+    let p=PLACES.find(q=>q.name===nm)
+        ||PLACES.find(q=>q.name.replace(/\s/g,"")===nm.replace(/\s/g,""))
+        ||PLACES.find(q=>q.name.includes(nm)||nm.includes(q.name));
+    if(!p){try{const rs=await searchPlaces(nm);if(rs&&rs.length)p=rs[0];}catch(err){}}
+    if(p){
+      if(!state.basket.some(b=>b.name===p.name&&Math.abs(b.lat-p.lat)<1e-5)){state.basket.push({...p});ok++;}
+    }else fail.push(nm);
+    if((i+1)%5===0)toast(`📥 매칭 중… ${i+1}/${names.length}`);
+  }
+  renderBasket();renderChips();refreshGo();saveState();
+  let msg=`✔ ${ok}곳을 코스 바구니에 담았어요`;
+  if(fail.length)msg+=` · 못 찾음: ${fail.slice(0,3).join(", ")}${fail.length>3?` 외 ${fail.length-3}곳`:""}`;
+  toast(msg);
+  if(!ok)return;
+  if(state.lodging){
+    state.plan=buildPlan();state.activeDay=0;state.busOpen=null;
+    renderResult();enableDesignTabs();mobScrollMap();
+  }else{
+    setTimeout(()=>toast("🏠 숙소만 정하면 코스가 자동 완성돼요 — 위에서 숙소를 검색해 주세요"),2200);
+    const inp=document.getElementById("lodgingInput");
+    if(inp)inp.focus({preventScroll:false});
+  }
+}
+document.getElementById("planFile").addEventListener("change",async e=>{
   const f=e.target.files[0];
   if(!f)return;
-  const rd=new FileReader();
-  rd.onload=()=>{
-    try{
-      const s=JSON.parse(rd.result);
+  e.target.value="";
+  const ext=(f.name.split(".").pop()||"").toLowerCase();
+  try{
+    if(ext==="json"){
+      const txt=await f.text();
+      const s=JSON.parse(txt);
       if(applyState(s)){toast("📂 계획 파일을 불러왔어요");saveState();}
       else alert("파일 형식이 올바르지 않아요.");
-    }catch(err){alert("파일을 읽지 못했어요. 어디레 감수광?에서 저장한 .json 파일인지 확인해 주세요.")}
-    e.target.value="";
-  };
-  rd.readAsText(f,"utf-8");
+    }else if(ext==="csv"){
+      const buf=await f.arrayBuffer();
+      let txt;
+      try{txt=new TextDecoder("utf-8",{fatal:true}).decode(buf)}
+      catch(_){txt=new TextDecoder("euc-kr").decode(buf)}
+      const names=txt.split(/\r?\n/).map(l=>l.split(/[,\t]/)[0]);
+      await importPlaces(names);
+    }else if(ext==="xlsx"||ext==="xls"){
+      if(!window.XLSX){
+        await new Promise(res=>{const s=document.createElement("script");
+          s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+          s.onload=res;s.onerror=res;document.head.appendChild(s);});
+      }
+      if(!window.XLSX){alert("엑셀 처리 모듈을 불러오지 못했어요. 네트워크 확인 후 다시 시도해 주세요.");return}
+      const wb=XLSX.read(await f.arrayBuffer());
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1});
+      const names=rows.map(r=>(Array.isArray(r)?r:[]).find(c=>String(c??"").trim()));
+      await importPlaces(names);
+    }else alert("지원 형식: .xlsx, .csv, 그리고 저장했던 .json 계획파일");
+  }catch(err){alert("파일을 읽지 못했어요. 형식을 확인해 주세요.")}
 });
 document.getElementById("planSaveBtn").onclick=()=>{
   const blob=new Blob([JSON.stringify(collectPayload(),null,2)],{type:"application/json;charset=utf-8"});
@@ -2113,10 +2223,8 @@ function loadSample(){
     const p=PLACES.find(q=>q.name===nm);
     if(p)state.basket.push({...p});
   });
-  state.days=3;
-  document.querySelectorAll(".dur-btn").forEach(b=>b.classList.toggle("on",+b.dataset.days===3));
-  const ds=document.getElementById("durSel");
-  if(ds){ds.value="";ds.classList.remove("on");}
+  {const t=new Date(),e=new Date();e.setDate(e.getDate()+2);
+   setTripDates(dateISO(t),dateISO(e),true);}
   renderBasket();renderChips();refreshGo();
   state.plan=buildPlan();state.activeDay=0;state.busOpen=null;
   renderResult();enableDesignTabs();
@@ -2129,13 +2237,13 @@ function loadSample(){
 document.getElementById("sampleBtn").onclick=loadSample;
 document.getElementById("startBtn").onclick=()=>{
   document.getElementById("introHint").hidden=false;
-  const s1=document.getElementById("step1");
+  const s1=document.getElementById("step3");
   s1.scrollIntoView({behavior:"smooth",block:"start"});
-  setTimeout(()=>{const inp=document.getElementById("lodgingInput");if(inp)inp.focus({preventScroll:true})},450);
+  setTimeout(()=>{const inp=document.getElementById("dStart");if(inp)inp.focus({preventScroll:true})},450);
 };
 
 /* 초기 렌더 */
-renderChips();renderBasket();restoreState();
+renderChips();renderBasket();initDates();restoreState();
 
 </script>
 <!-- Vercel Web Analytics (방문 통계) -->
