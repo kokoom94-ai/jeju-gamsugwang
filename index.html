@@ -123,7 +123,9 @@ aside{width:412px;min-width:412px;background:var(--paper);border-right:1px solid
 .basket-count b{color:var(--sea)}
 
 /* 일정 + 시간 */
-.dur-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.dur-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.dur-sel{border:1.5px solid var(--line);background:var(--paper);border-radius:10px;padding:9px 4px;font-size:12px;font-family:inherit;color:var(--basalt-soft)}
+.dur-sel.on{border-color:var(--sea);background:#EAF3F2;color:var(--sea-deep);font-weight:700}
 .dur-btn{border:1.5px solid var(--line);background:var(--paper);border-radius:10px;
   padding:9px 2px;font-size:12px;line-height:1.3;white-space:nowrap}
 .dur-btn small{display:block;font-size:10.5px;color:var(--basalt-soft)}
@@ -388,6 +390,22 @@ aside{width:412px;min-width:412px;background:var(--paper);border-right:1px solid
       </div>
       <button class="map-pick-btn" id="lodgingMapBtn">📍 지도를 클릭해서 숙소 위치 직접 지정</button>
       <div class="lodging-set" id="lodgingSet">🏠 <b id="lodgingName"></b><button class="mini-btn" id="lodgingClear">변경</button></div>
+      <div id="lodging2Wrap">
+        <button class="io-btn" id="lodging2Add" style="width:100%;margin-top:8px">🏨 여행 중 숙소가 바뀌어요 (선택)</button>
+        <div id="lodging2Form" hidden style="margin-top:8px">
+          <div class="search-wrap">
+            <input class="search-input" id="lodging2Input" type="text" placeholder="두 번째 숙소 검색" autocomplete="off">
+            <div class="search-drop" id="lodging2Drop" role="listbox"></div>
+          </div>
+          <div class="lodging-set" id="lodging2Set">🏨 <b id="lodging2Name"></b>
+            <label style="margin-left:auto;font-size:12px;color:var(--basalt-soft)">
+              <select id="lodging2From" style="padding:5px 7px;border:1.5px solid var(--line);border-radius:8px;font-size:12.5px"></select>부터
+            </label>
+            <button class="mini-btn" id="lodging2Clear">✕</button>
+          </div>
+          <p class="hint" style="margin-top:5px">선택한 일차부터 두 번째 숙소 기준으로 동선이 설계돼요. 이동일 아침은 첫 숙소 체크아웃 시간에 출발해요. 설정 후 <b>코스 설계하기</b>를 다시 눌러주세요.</p>
+        </div>
+      </div>
     </section>
 
     <!-- STEP 2 : 장소 담기 -->
@@ -413,6 +431,14 @@ aside{width:412px;min-width:412px;background:var(--paper);border-right:1px solid
         <button class="dur-btn on" data-days="3">2박 3일<small>3일</small></button>
         <button class="dur-btn" data-days="4">3박 4일<small>4일</small></button>
         <button class="dur-btn" data-days="5">4박 5일<small>5일</small></button>
+        <select class="dur-sel" id="durSel">
+          <option value="">더 길게 ▾</option>
+          <option value="6">5박 6일</option><option value="7">6박 7일</option>
+          <option value="8">7박 8일</option><option value="9">8박 9일</option>
+          <option value="10">9박 10일</option><option value="11">10박 11일</option>
+          <option value="12">11박 12일</option><option value="13">12박 13일</option>
+          <option value="14">13박 14일</option>
+        </select>
       </div>
       <p class="reco" id="reco"></p>
       <div class="sched-toggle">
@@ -546,7 +572,7 @@ aside{width:412px;min-width:412px;background:var(--paper);border-right:1px solid
 /* ══════════ 상수 ══════════ */
 const AIRPORT={name:"제주국제공항",lat:33.5066,lng:126.4927};
 const JEJU_CENTER={lat:33.375,lng:126.545};
-const DAY_COLORS=["#0E6B74","#E4762B","#5E7F3C","#7A5CA8","#B0486B"];
+const DAY_COLORS=["#0E6B74","#E4762B","#5E7F3C","#7A5CA8","#B0486B","#0E8A96","#C55A11","#4E7A2E","#6A4FA0","#98325A","#127E86","#D96B1F","#5A8A38","#7757AA"];
 const CATS=["인기 TOP","전체","명소","해변","오름","자연","문화","테마","시장","카페","섬"];
 /* 인기 순위 — 내비게이션·방문 빅데이터 기반 참고 순위.
    배포 폴더의 popular.json 을 교체하면 순위가 갱신됨 (제주관광 빅데이터 플랫폼 월간 추출 운영 권장) */
@@ -780,6 +806,18 @@ document.addEventListener("click",e=>{
 bindSearch(document.getElementById("lodgingInput"),document.getElementById("lodgingDrop"),
   h=>setLodging(h),{hotel:true});
 document.getElementById("lodgingMapBtn").onclick=()=>setMode(state.mode==="lodging"?null:"lodging");
+document.getElementById("lodging2Add").onclick=()=>{
+  const f=document.getElementById("lodging2Form");
+  f.hidden=!f.hidden;
+  if(!f.hidden)refreshLodging2From();
+};
+bindSearch(document.getElementById("lodging2Input"),document.getElementById("lodging2Drop"),
+  h=>setLodging2(h),{hotel:true});
+document.getElementById("lodging2Clear").onclick=clearLodging2;
+document.getElementById("lodging2From").addEventListener("change",e=>{
+  if(state.lodging2){state.lodging2.fromDay=+e.target.value;saveState();
+    toast("🏨 숙소 변경 일차를 바꿨어요 — 코스 설계하기를 다시 눌러주세요");}
+});
 document.getElementById("lodgingClear").onclick=()=>{
   state.lodging=null;
   if(lodgingMarker){map.removeLayer(lodgingMarker);lodgingMarker=null}
@@ -787,6 +825,36 @@ document.getElementById("lodgingClear").onclick=()=>{
   document.getElementById("step1").classList.remove("done");
   refreshGo();
 };
+state.lodging2=null; /* {place, fromDay} */
+let lodging2Marker=null;
+function refreshLodging2From(){
+  const sel=document.getElementById("lodging2From");
+  if(!sel)return;
+  const cur=state.lodging2?state.lodging2.fromDay:2;
+  let h="";
+  for(let d=2;d<=Math.max(2,state.days);d++)h+=`<option value="${d}"${d===cur?" selected":""}>${d}일차</option>`;
+  sel.innerHTML=h;
+  if(state.lodging2&&state.lodging2.fromDay>state.days)state.lodging2.fromDay=state.days;
+}
+function setLodging2(l){
+  state.lodging2={place:{...l},fromDay:+(document.getElementById("lodging2From").value||2)};
+  document.getElementById("lodging2Name").textContent=l.name;
+  document.getElementById("lodging2Set").classList.add("on");
+  if(lodging2Marker)map.removeLayer(lodging2Marker);
+  lodging2Marker=L.marker([l.lat,l.lng],{icon:pinIcon("🏨","home-pin")}).addTo(map).bindTooltip(esc(l.name)+" (변경 숙소)");
+  saveState();refreshGo();
+}
+function clearLodging2(){
+  state.lodging2=null;
+  if(lodging2Marker){map.removeLayer(lodging2Marker);lodging2Marker=null}
+  document.getElementById("lodging2Set").classList.remove("on");
+  document.getElementById("lodging2Input").value="";
+  saveState();
+}
+function lodgingFor(i){ /* i일차(0-base) 밤에 묵는 숙소 */
+  if(state.lodging2&&state.lodging2.place&&(i+1)>=state.lodging2.fromDay)return state.lodging2.place;
+  return state.lodging;
+}
 function setLodging(l){
   state.lodging={...l};
   document.getElementById("lodgingName").textContent=l.name;
@@ -870,6 +938,16 @@ function drawPool(){
 document.querySelectorAll(".dur-btn").forEach(b=>b.onclick=()=>{
   state.days=+b.dataset.days;
   document.querySelectorAll(".dur-btn").forEach(x=>x.classList.toggle("on",x===b));
+  const ds=document.getElementById("durSel");ds.value="";ds.classList.remove("on");
+  refreshLodging2From();
+  updateReco();saveState();
+});
+document.getElementById("durSel").addEventListener("change",e=>{
+  if(!e.target.value)return;
+  state.days=+e.target.value;
+  document.querySelectorAll(".dur-btn").forEach(x=>x.classList.remove("on"));
+  e.target.classList.add("on");
+  refreshLodging2From();
   updateReco();saveState();
 });
 document.getElementById("schedOn").addEventListener("change",e=>{
@@ -971,19 +1049,32 @@ window.toggleBus=(day,k)=>{
 };
 
 /* ══════════ 일자별 앵커·시작시간 ══════════ */
+function isMoveDay(i,D){
+  if(i<=0||i>=D)return false;
+  const a=lodgingFor(i-1),b=lodgingFor(i);
+  return !!(a&&b&&a.name!==b.name);
+}
 function anchors(i,D){
-  const s=state.sched,h=state.lodging;
-  if(!s.on||!h)return{start:h,end:h,sName:h.name,eName:h.name,sIcon:"🏠",eIcon:"🏠",sTag:"출발",eTag:"복귀"};
+  const s=state.sched;
+  const hs=(i===0)?lodgingFor(0):lodgingFor(i-1);   /* 아침에 나서는 숙소 */
+  const he=lodgingFor(i);                            /* 밤에 묵는 숙소 */
+  const mv=isMoveDay(i,D);
+  if(!s.on||!state.lodging){
+    const a=hs||state.lodging,b=he||state.lodging;
+    return{start:a,end:b,sName:a.name,eName:b.name,sIcon:"🏠",eIcon:mv?"🏨":"🏠",sTag:"출발",eTag:mv?"숙소 이동·체크인":"복귀"};
+  }
   if(D===1)return{start:AIRPORT,end:AIRPORT,sName:AIRPORT.name,eName:AIRPORT.name,sIcon:"✈",eIcon:"✈",sTag:`도착 ${s.arr}`,eTag:"공항 복귀"};
-  if(i===0)return{start:AIRPORT,end:h,sName:AIRPORT.name,eName:h.name,sIcon:"✈",eIcon:"🏠",sTag:`도착 ${s.arr}`,eTag:`체크인 ${s.cin}`};
-  if(i===D-1)return{start:h,end:AIRPORT,sName:h.name,eName:AIRPORT.name,sIcon:"🏠",eIcon:"✈",sTag:`체크아웃 ${s.cout}`,eTag:`출발 ${s.dep}`};
-  return{start:h,end:h,sName:h.name,eName:h.name,sIcon:"🏠",eIcon:"🏠",sTag:"출발",eTag:"복귀"};
+  if(i===0)return{start:AIRPORT,end:he,sName:AIRPORT.name,eName:he.name,sIcon:"✈",eIcon:"🏠",sTag:`도착 ${s.arr}`,eTag:`체크인 ${s.cin}`};
+  if(i===D-1)return{start:hs,end:AIRPORT,sName:hs.name,eName:AIRPORT.name,sIcon:"🏠",eIcon:"✈",sTag:`체크아웃 ${s.cout}`,eTag:`출발 ${s.dep}`};
+  if(mv)return{start:hs,end:he,sName:hs.name,eName:he.name,sIcon:"🏠",eIcon:"🏨",sTag:`체크아웃 ${s.cout}`,eTag:`체크인 ${s.cin}`};
+  return{start:hs,end:he,sName:hs.name,eName:he.name,sIcon:"🏠",eIcon:"🏠",sTag:"출발",eTag:"복귀"};
 }
 function startMin(i,D){
   const s=state.sched;
   if(!s.on)return null;
   if(i===0||D===1)return toMin(s.arr)+(s.buf==null?60:s.buf);
   if(i===D-1)return toMin(s.cout);
+  if(isMoveDay(i,D))return toMin(s.cout); /* 숙소 이동일: 첫 숙소 퇴실 시간 출발 */
   return 570;
 }
 function capHours(i,D){
@@ -992,6 +1083,7 @@ function capHours(i,D){
   if(D===1)return Math.max(2,(toMin(s.dep)-(s.dbuf==null?90:s.dbuf)-(toMin(s.arr)+(s.buf==null?60:s.buf)))/60);
   if(i===0)return Math.max(2,(19.5*60-(toMin(s.arr)+(s.buf==null?60:s.buf)))/60);
   if(i===D-1)return Math.max(1.5,(toMin(s.dep)-(s.dbuf==null?90:s.dbuf)-toMin(s.cout))/60);
+  if(isMoveDay(i,D))return Math.max(2,(19.5*60-toMin(s.cout))/60);
   return 9.5;
 }
 
@@ -1065,7 +1157,7 @@ function buildPlan(fromStops){
 }
 function computeDay(i){
   const D=state.plan.length,a=anchors(i,D),day=state.plan[i],stops=day.stops;
-  const isFirst=(i===0&&D>1&&state.sched.on&&!!state.lodging);
+  const isFirst=(state.sched.on&&!!state.lodging&&D>1&&(i===0||isMoveDay(i,D)));
   let p=null;
   if(isFirst&&day.checkinPos!=null){
     p=Math.max(0,Math.min(day.checkinPos,stops.length));
@@ -1073,7 +1165,7 @@ function computeDay(i){
   }
   const nodes=[];
   stops.forEach((s,j)=>{
-    if(p!==null&&j===p)nodes.push({kind:"checkin",pt:state.lodging});
+    if(p!==null&&j===p)nodes.push({kind:"checkin",pt:lodgingFor(i)});
     nodes.push({kind:"stop",pt:s,idx:j});
   });
   const pts=[a.start,...nodes.map(n=>n.pt),a.end];
@@ -1157,7 +1249,7 @@ function renderDayPanel(flash){
       const early=row&&row.arr<toMin(s.cin);
       html+=`<div class="tl-node checkin-node"><span class="stone home">🏨</span>
         <div class="node-main">
-          <div class="place-name">숙소 체크인 · ${esc(state.lodging.name)}</div>
+          <div class="place-name">숙소 체크인 · ${esc(lodgingFor(i).name)}</div>
           <div class="place-sub">${row?`<span class="clock">${fmtClock(row.arr)}</span> 도착 · 체크인/짐 정리 약 25분`:""}
           ${early?` · <span style="color:#9A5310">정식 체크인 ${s.cin} 전 — 짐 보관 요청</span>`:""}</div>
         </div>
@@ -1356,7 +1448,7 @@ function drawRoutes(){
 /* ══════════ 텍스트 복사 ══════════ */
 document.getElementById("copyBtn").onclick=async()=>{
   if(!state.plan)return;
-  let t=`🍊 어디레 감수광? — 제주 ${state.plan.length}일 일정\n숙소: ${state.lodging.name}\n`;
+  let t=`🍊 어디레 감수광? — 제주 ${state.plan.length}일 일정\n숙소: ${state.lodging.name}${state.lodging2&&state.lodging2.place?` → ${state.lodging2.place.name} (${state.lodging2.fromDay}일차~)`:""}\n`;
   if(state.sched.on)t+=`입도 ${state.sched.arr} · 출도 ${state.sched.dep} · 체크인 ${state.sched.cin} · 체크아웃 ${state.sched.cout}\n`;
   t+=`\n`;
   state.plan.forEach((_,i)=>{
@@ -1642,7 +1734,7 @@ function renderCostSummary(){
 
 /* ══════════ 설계4: 마무리 ══════════ */
 function buildItineraryText(withCost){
-  let t=`🍊 어디레 감수광? — 제주 ${state.plan.length}일 일정\n숙소: ${state.lodging.name}\n`;
+  let t=`🍊 어디레 감수광? — 제주 ${state.plan.length}일 일정\n숙소: ${state.lodging.name}${state.lodging2&&state.lodging2.place?` → ${state.lodging2.place.name} (${state.lodging2.fromDay}일차~)`:""}\n`;
   if(state.sched.on)t+=`입도 ${state.sched.arr} · 출도 ${state.sched.dep} · 체크인 ${state.sched.cin} · 체크아웃 ${state.sched.cout}\n`;
   t+=`\n`;
   state.plan.forEach((_,i)=>{
@@ -1703,7 +1795,7 @@ function renderFinal(){
   let feeSum=0;state.plan.forEach(d=>d.stops.forEach(p=>{feeSum+=feeOf(p)}));
   const total=fuelCost+feeSum*state.cost.persons+state.cost.fixed;
   document.getElementById("finalSummary").innerHTML=`<div class="final-sum">
-    <b>${state.lodging.name}</b> 기준 <b>${state.plan.length}일 · ${stopN}곳</b> 코스가 완성됐어요.<br>
+    <b>${state.lodging.name}</b>${state.lodging2&&state.lodging2.place?` → <b>${esc(state.lodging2.place.name)}</b>(${state.lodging2.fromDay}일차~)`:""} 기준 <b>${state.plan.length}일 · ${stopN}곳</b> 코스가 완성됐어요.<br>
     총 이동 <b>${Math.round(km)}km</b> · 운전 <b>${fmtMin(carMin)}</b> · 예상 비용 <b>${won(total)}</b> (${state.cost.persons}명)
     ${state.fac.pinned.length?`<br>📌 참고 시설 <b>${state.fac.pinned.length}곳</b> 함께 저장됨`:""}
   </div>`;
@@ -1862,7 +1954,7 @@ function saveState(){
     try{
       localStorage.setItem(SAVE_KEY,JSON.stringify({
         v:1,at:Date.now(),
-        lodging:state.lodging,basket:state.basket,days:state.days,sched:state.sched,
+        lodging:state.lodging,lodging2:state.lodging2,basket:state.basket,days:state.days,sched:state.sched,
         plan:state.plan,removedPool:state.removedPool,pinned:state.fac.pinned,
         cost:state.cost,activeDay:state.activeDay
       }));
@@ -1871,7 +1963,7 @@ function saveState(){
 }
 function collectPayload(){
   return {v:1,app:"어디레감수광",at:new Date().toISOString(),
-    lodging:state.lodging,basket:state.basket,days:state.days,sched:state.sched,
+    lodging:state.lodging,lodging2:state.lodging2,basket:state.basket,days:state.days,sched:state.sched,
     plan:state.plan,removedPool:state.removedPool,pinned:state.fac.pinned,cost:state.cost};
 }
 function applyState(s){
@@ -1888,6 +1980,9 @@ function applyState(s){
     }
     if(s.days){state.days=s.days;
       document.querySelectorAll(".dur-btn").forEach(b=>b.classList.toggle("on",+b.dataset.days===s.days));
+      const ds=document.getElementById("durSel");
+      if(s.days>5){ds.value=String(s.days);ds.classList.add("on");}
+      else{ds.value="";ds.classList.remove("on");}
     }
     if(s.cost){state.cost={...state.cost,...s.cost,over:{...(s.cost.over||{})}};
       document.getElementById("cPersons").value=state.cost.persons;
@@ -1900,6 +1995,13 @@ function applyState(s){
     state.removedPool=Array.isArray(s.removedPool)?s.removedPool:[];
     state.fac.pinned=Array.isArray(s.pinned)?s.pinned:[];
     if(s.lodging)setLodging(s.lodging);
+    if(s.lodging2&&s.lodging2.place){
+      document.getElementById("lodging2Form").hidden=false;
+      refreshLodging2From();
+      document.getElementById("lodging2From").value=String(s.lodging2.fromDay||2);
+      setLodging2(s.lodging2.place);
+      state.lodging2.fromDay=s.lodging2.fromDay||2;
+    }
     renderBasket();renderChips();refreshGo();
     if(s.plan&&Array.isArray(s.plan)&&s.plan.length&&state.lodging){
       state.plan=s.plan.map(d=>({stops:d.stops||[],checkinPos:d.checkinPos??null}));
