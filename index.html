@@ -826,12 +826,13 @@ function refreshLodging2From(){
   const sel=document.getElementById("lodging2From");
   if(!sel)return;
   const keep=sel.value;
-  let h="";
-  for(let d=2;d<=Math.max(2,state.days);d++)h+=`<option value="${d}">${d}일차</option>`;
-  sel.innerHTML=h;
-  if(keep&&+keep<=state.days)sel.value=keep;
-  state.l2=state.l2.filter(c=>c.fromDay<=state.days);
-  renderL2List();
+  if(!sel.options.length){
+    let h="";
+    for(let d=2;d<=14;d++)h+=`<option value="${d}">${d}일차</option>`;
+    sel.innerHTML=h;
+  }
+  if(keep)sel.value=keep;
+  renderL2List(); /* 일정보다 뒤인 변경은 삭제하지 않고 표시만 — 일정을 늘리면 자동 적용 */
 }
 function setLodging2(l){
   const fromDay=+(document.getElementById("lodging2From").value||2);
@@ -855,10 +856,11 @@ function renderL2List(){
   if(!el)return;
   l2Markers.forEach(m=>map.removeLayer(m));l2Markers=[];
   if(!state.l2.length){el.innerHTML="";return}
-  el.innerHTML=state.l2.map((c,x)=>
-    `<div class="lodging-set on" style="margin-top:6px">🏨 <b>${esc(c.place.name)}</b>
-     <span style="margin-left:auto;font-size:11.5px;color:var(--sea-deep);font-weight:700">${c.fromDay}일차부터</span>
-     <button class="mini-btn" onclick="removeL2(${x})">✕</button></div>`).join("");
+  el.innerHTML=state.l2.map((c,x)=>{
+    const out=c.fromDay>state.days;
+    return `<div class="lodging-set on" style="margin-top:6px${out?";opacity:.55":""}">🏨 <b>${esc(c.place.name)}</b>
+     <span style="margin-left:auto;font-size:11.5px;font-weight:700;color:${out?"#9A5310":"var(--sea-deep)"}">${c.fromDay}일차부터${out?" · 일정보다 뒤(미적용)":""}</span>
+     <button class="mini-btn" onclick="removeL2(${x})">✕</button></div>`}).join("");
   state.l2.forEach(c=>{
     l2Markers.push(L.marker([c.place.lat,c.place.lng],{icon:pinIcon("🏨","home-pin")})
       .addTo(map).bindTooltip(esc(c.place.name)+` (${c.fromDay}일차~)`));
